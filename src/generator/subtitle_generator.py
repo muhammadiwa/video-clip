@@ -1,6 +1,7 @@
 """Subtitle generation using speech recognition."""
 
 import os
+import tempfile
 from pathlib import Path
 from typing import Optional
 import whisper
@@ -38,7 +39,8 @@ class SubtitleGenerator:
             Path to extracted audio file
         """
         if output_path is None:
-            output_path = f"/tmp/{Path(video_path).stem}_audio.wav"
+            temp_dir = tempfile.gettempdir()
+            output_path = os.path.join(temp_dir, f"{Path(video_path).stem}_audio.wav")
         
         logger.info(f"Extracting audio from video: {video_path}")
         
@@ -169,7 +171,8 @@ class SubtitleGenerator:
             )
             
             # Clean up temp audio file
-            if os.path.exists(audio_path) and audio_path.startswith('/tmp/'):
+            temp_dir = tempfile.gettempdir()
+            if os.path.exists(audio_path) and audio_path.startswith(temp_dir):
                 os.remove(audio_path)
             
             return result['text'].strip()

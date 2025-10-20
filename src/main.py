@@ -2,6 +2,7 @@
 
 import json
 import os
+import tempfile
 from pathlib import Path
 from typing import Optional, List
 from datetime import datetime
@@ -22,7 +23,9 @@ class ViralClipGenerator:
         """Initialize the viral clip generator."""
         Config.ensure_directories()
         
-        self.downloader = YouTubeDownloader(output_dir="/tmp/videos")
+        # Use temp directory for downloads
+        temp_dir = tempfile.gettempdir()
+        self.downloader = YouTubeDownloader(output_dir=os.path.join(temp_dir, "viral_clip_videos"))
         self.scene_detector = SceneDetector()
         self.video_editor = VideoEditor()
         self.content_generator = ContentGenerator()

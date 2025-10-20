@@ -1,7 +1,7 @@
 """AI-powered content generation for viral titles, descriptions, and tags."""
 
 import json
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from openai import OpenAI
 from src.utils.logger import logger
 from src.utils.config import Config
@@ -54,7 +54,7 @@ class ContentGenerator:
         video_description: str,
         clip_context: str,
         duration: float
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """Generate content using OpenAI API.
         
         Args:
@@ -122,7 +122,7 @@ Return the response as a JSON object with keys: title, description, tags, hashta
         
         return self._generate_fallback(video_title, duration)
     
-    def _generate_fallback(self, video_title: str, duration: float) -> Dict[str, any]:
+    def _generate_fallback(self, video_title: str, duration: float) -> Dict[str, Any]:
         """Generate fallback content without AI.
         
         Args:
@@ -171,7 +171,7 @@ Drop a 💯 if you enjoyed!
         clip_context: str = "",
         duration: float = 60,
         num_variants: int = 3
-    ) -> List[Dict[str, any]]:
+    ) -> List[Dict[str, Any]]:
         """Generate multiple content variants.
         
         Args:

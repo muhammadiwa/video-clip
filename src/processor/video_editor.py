@@ -3,6 +3,7 @@
 import os
 from pathlib import Path
 from typing import Tuple, Optional
+from PIL import Image
 from moviepy.editor import VideoFileClip, CompositeVideoClip
 from moviepy.video.fx import resize, crop
 from src.utils.logger import logger
@@ -143,7 +144,6 @@ class VideoEditor:
             frame = video.get_frame(time)
             
             # Save as image
-            from PIL import Image
             img = Image.fromarray(frame)
             img.save(output_path, quality=95)
             
