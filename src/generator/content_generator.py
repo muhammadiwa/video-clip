@@ -29,7 +29,7 @@ class ContentGenerator:
         video_description: str = "",
         clip_context: str = "",
         duration: float = 60
-    ) -> Dict[str, any]:
+    ) -> Dict[str, Any]:
         """Generate viral title, description, and tags for a clip.
         
         Args:
