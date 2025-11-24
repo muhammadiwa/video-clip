@@ -1,0 +1,32 @@
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+python-multipart==0.0.6
+python-dotenv==1.0.0
+pydantic==2.5.3
+pydantic-settings==2.1.0
+
+# Database
+sqlalchemy==2.0.25
+psycopg2-binary==2.9.9
+alembic==1.13.1
+
+# Redis & Job Queue
+redis==5.0.1
+celery==5.3.6
+
+# Video Processing
+ffmpeg-python==0.2.0
+yt-dlp>=2024.3.10
+
+# AI & ML (optional for Phase 1)
+# openai==1.10.0
+# openai-whisper==20231117
+
+# Storage
+boto3==1.34.34
+
+# Utils
+aiofiles==23.2.1
+Pillow==10.2.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
