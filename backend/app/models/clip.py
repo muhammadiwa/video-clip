@@ -8,9 +8,11 @@ class Clip(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
+    video_id = Column(Integer, ForeignKey("videos.id"), nullable=True)
     
     # Clip info
-    name = Column(String, nullable=False)
+    title = Column(String, nullable=True)
+    name = Column(String, nullable=True)
     description = Column(String, nullable=True)
     
     # Timeline

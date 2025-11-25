@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, DateTime, Float, ForeignKey, JSON, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -21,6 +21,7 @@ class Video(Base):
     height = Column(Integer, nullable=True)
     fps = Column(Float, nullable=True)
     codec = Column(String, nullable=True)
+    bitrate = Column(Integer, nullable=True)  # bits per second
     
     # Source
     source_type = Column(String, default="upload")  # upload, youtube, vimeo
@@ -29,9 +30,13 @@ class Video(Base):
     # Processing status
     status = Column(String, default="uploaded")  # uploaded, processing, processed, error
     processing_progress = Column(Integer, default=0)  # 0-100
+    error_message = Column(String, nullable=True)
     
     # Extracted data
     audio_path = Column(String, nullable=True)
+    thumbnail_path = Column(String, nullable=True)
+    transcription_path = Column(String, nullable=True)
+    has_transcription = Column(Boolean, default=False)
     transcript = Column(JSON, nullable=True)
     scenes = Column(JSON, nullable=True)
     
