@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime
 from app.core.database import get_db
 from app.models.project import Project
 
@@ -18,13 +19,14 @@ class ProjectCreate(BaseModel):
 class ProjectResponse(BaseModel):
     id: int
     name: str
-    description: str = None
+    description: Optional[str] = None
     status: str
     source_language: str
     target_platform: str
     target_duration: int
     aspect_ratio: str
-    created_at: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True

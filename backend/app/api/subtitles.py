@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime
 from app.core.database import get_db
 from app.models.subtitle import Subtitle
 
@@ -29,7 +30,8 @@ class SubtitleResponse(BaseModel):
     end_time: float
     language: str
     style: Optional[dict] = None
-    created_at: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True

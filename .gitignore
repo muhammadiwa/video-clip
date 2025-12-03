@@ -38,10 +38,10 @@ frontend/.env
 Thumbs.db
 
 # Uploads & temp files
-uploads/*
-temp/*
-!uploads/.gitkeep
-!temp/.gitkeep
+uploads/
+temp/
+backend/uploads/
+backend/temp/
 
 # Database
 *.db
@@ -50,3 +50,49 @@ temp/*
 # Logs
 *.log
 logs/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Redis
+dump.rdb
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# MyPy
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Docker
+docker-compose.override.yml
+
+# Alembic
+alembic/versions/__pycache__/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+
+# Media files (optional - uncomment if needed)
+# *.mp4
+# *.mp3
+# *.wav
+# *.avi
+# *.mkv
+
+# Factory/Kiro
+.factory/
+.kiro/
+
+# Tests, Docs, Scripts (development files)
+backend/tests/
+backend/docs/
+backend/scripts/

@@ -89,6 +89,10 @@ def process_uploaded_video(self, video_id: int):
         video.status = "processed"
         self.db.commit()
         
+        # Trigger AI pipeline (transcribe -> detect scenes -> detect viral moments)
+        from app.tasks.ai_tasks import process_video_pipeline
+        process_video_pipeline.delay(video_id)
+        
         return {
             'video_id': video_id,
             'status': 'success',
@@ -106,10 +110,9 @@ def process_uploaded_video(self, video_id: int):
             video.error_message = str(e)
             self.db.commit()
         
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'traceback': traceback.format_exc()}
-        )
+        # Let Celery handle the exception properly
+        print(f"[ERROR] Video processing failed: {str(e)}")
+        print(traceback.format_exc())
         raise
 
 @celery_app.task(bind=True, base=DatabaseTask, name="download_youtube_video")
@@ -182,10 +185,9 @@ def download_youtube_video(self, project_id: int, youtube_url: str):
         }
         
     except Exception as e:
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'traceback': traceback.format_exc()}
-        )
+        # Let Celery handle the exception properly
+        print(f"[ERROR] Task failed: {str(e)}")
+        print(traceback.format_exc())
         raise
 
 @celery_app.task(bind=True, base=DatabaseTask, name="trim_video_task")
@@ -227,10 +229,9 @@ def trim_video_task(self, video_id: int, start_time: float, end_time: float):
         }
         
     except Exception as e:
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'traceback': traceback.format_exc()}
-        )
+        # Let Celery handle the exception properly
+        print(f"[ERROR] Task failed: {str(e)}")
+        print(traceback.format_exc())
         raise
 
 @celery_app.task(bind=True, base=DatabaseTask, name="compress_video_task")
@@ -275,8 +276,7 @@ def compress_video_task(self, video_id: int, crf: int = 28):
         }
         
     except Exception as e:
-        self.update_state(
-            state='FAILURE',
-            meta={'error': str(e), 'traceback': traceback.format_exc()}
-        )
+        # Let Celery handle the exception properly
+        print(f"[ERROR] Task failed: {str(e)}")
+        print(traceback.format_exc())
         raise

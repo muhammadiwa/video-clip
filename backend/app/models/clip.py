@@ -8,7 +8,7 @@ class Clip(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False)
-    video_id = Column(Integer, ForeignKey("videos.id"), nullable=True)
+    video_id = Column(Integer, ForeignKey("videos.id"), nullable=False)  # Clip MUST belong to a video
     
     # Clip info
     title = Column(String, nullable=True)
@@ -46,4 +46,5 @@ class Clip(Base):
     
     # Relationships
     project = relationship("Project", back_populates="clips")
+    video = relationship("Video", back_populates="clips")
     subtitles = relationship("Subtitle", back_populates="clip", cascade="all, delete-orphan")

@@ -7,7 +7,10 @@ class Subtitle(Base):
     __tablename__ = "subtitles"
     
     id = Column(Integer, primary_key=True, index=True)
-    clip_id = Column(Integer, ForeignKey("clips.id"), nullable=False)
+    
+    # Support both video-level and clip-level subtitles
+    video_id = Column(Integer, ForeignKey("videos.id"), nullable=True)
+    clip_id = Column(Integer, ForeignKey("clips.id"), nullable=True)
     
     # Subtitle content
     text = Column(String, nullable=False)
@@ -25,4 +28,5 @@ class Subtitle(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
+    video = relationship("Video", back_populates="subtitles")
     clip = relationship("Clip", back_populates="subtitles")

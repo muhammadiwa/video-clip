@@ -37,6 +37,8 @@ class Video(Base):
     thumbnail_path = Column(String, nullable=True)
     transcription_path = Column(String, nullable=True)
     has_transcription = Column(Boolean, default=False)
+    scenes_path = Column(String, nullable=True)
+    has_scenes = Column(Boolean, default=False)
     transcript = Column(JSON, nullable=True)
     scenes = Column(JSON, nullable=True)
     
@@ -46,3 +48,5 @@ class Video(Base):
     
     # Relationships
     project = relationship("Project", back_populates="videos")
+    clips = relationship("Clip", back_populates="video", cascade="all, delete-orphan")
+    subtitles = relationship("Subtitle", back_populates="video", cascade="all, delete-orphan")

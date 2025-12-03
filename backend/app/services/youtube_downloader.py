@@ -27,6 +27,7 @@ class YouTubeDownloader:
             output_template = str(output_path / f"yt_{timestamp}_%(title)s.%(ext)s")
             
             ydl_opts = {
+                # Best quality with FFmpeg merge, fallback to single format if FFmpeg not available
                 'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
                 'outtmpl': output_template,
                 'quiet': False,
@@ -35,6 +36,7 @@ class YouTubeDownloader:
                 'writethumbnail': True,
                 'writesubtitles': False,
                 'writeautomaticsub': False,
+                'merge_output_format': 'mp4',  # Ensure merged output is mp4
             }
             
             # Download video

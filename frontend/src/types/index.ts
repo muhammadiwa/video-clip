@@ -25,15 +25,21 @@ export interface Video {
   codec?: string
   source_type: 'upload' | 'youtube' | 'vimeo'
   source_url?: string
-  status: 'uploaded' | 'processing' | 'processed' | 'error'
+  status: 'uploaded' | 'processing' | 'processed' | 'error' | 'downloaded'
   processing_progress: number
+  has_transcription?: boolean
+  transcription_path?: string
+  has_scenes?: boolean
+  scenes_path?: string
   created_at: string
 }
 
 export interface Clip {
   id: number
   project_id: number
-  name: string
+  video_id: number  // Required - clip must belong to a video
+  name?: string
+  title?: string
   description?: string
   start_time: number
   end_time: number
@@ -82,4 +88,21 @@ export interface UploadProgress {
   loaded: number
   total: number
   percentage: number
+}
+
+export interface ProcessingTemplate {
+  id: number
+  name: string
+  description?: string
+  is_default: boolean
+  top_n: number
+  target_platform: string
+  aspect_ratio: string
+  burn_subtitles: boolean
+  subtitle_style: string
+  min_duration: number
+  max_duration: number
+  settings?: Record<string, any>
+  created_at: string
+  updated_at?: string
 }

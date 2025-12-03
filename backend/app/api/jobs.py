@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 from celery.result import AsyncResult
 from app.core.celery_app import celery_app
+import json
 
 router = APIRouter()
 
@@ -16,7 +17,7 @@ class JobStatus(BaseModel):
 @router.get("/status/{job_id}", response_model=JobStatus)
 def get_job_status(job_id: str):
     """
-    Get status of a background job
+    Get status of a background job - FIXED VERSION
     """
     try:
         task_result = AsyncResult(job_id, app=celery_app)
@@ -32,17 +33,86 @@ def get_job_status(job_id: str):
                 "total": 100,
                 "status": "Job is waiting to be processed..."
             }
+            
         elif task_result.state == 'PROGRESS':
-            response["progress"] = task_result.info
+            # Handle PROGRESS state info
+            try:
+                if isinstance(task_result.info, dict):
+                    response["progress"] = task_result.info
+                else:
+                    response["progress"] = {
+                        "current": 50,
+                        "total": 100,
+                        "status": str(task_result.info) if task_result.info else "Processing..."
+                    }
+            except Exception:
+                response["progress"] = {
+                    "current": 50,
+                    "total": 100,
+                    "status": "Processing..."
+                }
+                
         elif task_result.state == 'SUCCESS':
-            response["result"] = task_result.result
-            response["progress"] = {
-                "current": 100,
-                "total": 100,
-                "status": "Job completed successfully"
-            }
+            # Handle SUCCESS - Use backend directly instead of task_result.result
+            # This avoids the Redis deserialization issue
+            try:
+                # Import redis for direct access
+                import redis
+                
+                # Connect to Redis directly
+                redis_client = redis.Redis(
+                    host='localhost',
+                    port=6379,
+                    db=0,
+                    decode_responses=True  # Important: decode as strings
+                )
+                
+                # Get result directly from Redis
+                redis_key = f"celery-task-meta-{job_id}"
+                redis_data = redis_client.get(redis_key)
+                
+                if redis_data:
+                    # Parse JSON
+                    import json as json_module
+                    parsed = json_module.loads(redis_data)
+                    result_data = parsed.get('result', {})
+                    
+                    # Ensure it's a dict
+                    if isinstance(result_data, dict):
+                        response["result"] = result_data
+                    else:
+                        response["result"] = {"data": str(result_data)}
+                else:
+                    # Fallback: task completed but no result in Redis
+                    response["result"] = {"status": "completed"}
+                    
+                response["progress"] = {
+                    "current": 100,
+                    "total": 100,
+                    "status": "Job completed successfully"
+                }
+                
+            except Exception as e:
+                # If Redis fails, return success with minimal data
+                print(f"[WARNING] Cannot get result for {job_id}: {e}")
+                response["result"] = {"status": "completed"}
+                response["progress"] = {
+                    "current": 100,
+                    "total": 100,
+                    "status": "Job completed successfully"
+                }
+                
         elif task_result.state == 'FAILURE':
-            response["error"] = str(task_result.info.get('error', 'Unknown error'))
+            # Handle FAILURE state
+            try:
+                error_info = task_result.info
+                if isinstance(error_info, dict):
+                    response["error"] = str(error_info.get('error', 'Unknown error'))
+                else:
+                    response["error"] = str(error_info) if error_info else 'Unknown error'
+            except Exception:
+                response["error"] = 'Task failed'
+                
             response["progress"] = {
                 "current": 0,
                 "total": 100,
@@ -52,6 +122,9 @@ def get_job_status(job_id: str):
         return response
         
     except Exception as e:
+        import traceback
+        print(f"[ERROR] Job status error for {job_id}: {e}")
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Failed to get job status: {str(e)}")
 
 @router.post("/cancel/{job_id}")

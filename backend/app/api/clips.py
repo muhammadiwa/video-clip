@@ -2,13 +2,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import datetime
 from app.core.database import get_db
 from app.models.clip import Clip
+from app.models.video import Video
 
 router = APIRouter()
 
 class ClipCreate(BaseModel):
-    project_id: int
+    video_id: int  # Required - clip must belong to a video
     name: str
     description: Optional[str] = None
     start_time: float
@@ -29,7 +31,9 @@ class ClipUpdate(BaseModel):
 class ClipResponse(BaseModel):
     id: int
     project_id: int
-    name: str
+    video_id: int  # Required - clip must belong to a video
+    name: Optional[str] = None
+    title: Optional[str] = None
     description: Optional[str] = None
     start_time: float
     end_time: float
@@ -38,16 +42,23 @@ class ClipResponse(BaseModel):
     category: Optional[str] = None
     aspect_ratio: str
     status: str
-    created_at: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
 
 @router.post("/", response_model=ClipResponse)
 def create_clip(clip: ClipCreate, db: Session = Depends(get_db)):
+    # Get video to retrieve project_id
+    video = db.query(Video).filter(Video.id == clip.video_id).first()
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+    
     duration = clip.end_time - clip.start_time
     db_clip = Clip(
-        project_id=clip.project_id,
+        video_id=clip.video_id,
+        project_id=video.project_id,  # Auto-populate from video
         name=clip.name,
         description=clip.description,
         start_time=clip.start_time,
@@ -64,7 +75,18 @@ def create_clip(clip: ClipCreate, db: Session = Depends(get_db)):
 
 @router.get("/project/{project_id}", response_model=List[ClipResponse])
 def get_project_clips(project_id: int, db: Session = Depends(get_db)):
+    """Get all clips for a project"""
     clips = db.query(Clip).filter(Clip.project_id == project_id).all()
+    return clips
+
+@router.get("/video/{video_id}", response_model=List[ClipResponse])
+def get_video_clips(video_id: int, db: Session = Depends(get_db)):
+    """Get all clips generated from a specific video"""
+    video = db.query(Video).filter(Video.id == video_id).first()
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+    
+    clips = db.query(Clip).filter(Clip.video_id == video_id).order_by(Clip.viral_score.desc()).all()
     return clips
 
 @router.get("/{clip_id}", response_model=ClipResponse)
